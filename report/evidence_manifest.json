@@ -1,0 +1,578 @@
+[
+  {
+    "id": "E01",
+    "file": "Screenshots/01-resource-group.png",
+    "service": "Azure Resource Manager",
+    "evidence": "HMirrou ; North Europe ; groupe vide à cet instant ; 24/11/2026 visible.",
+    "section": "Architecture",
+    "confidence": "Élevée",
+    "sha256": "864870f36a0a57bb64ebd8dc934c54672e16c15af588727d8dbe8f56f87dc863"
+  },
+  {
+    "id": "E02",
+    "file": "Screenshots/02-access-control.png",
+    "service": "Azure IAM",
+    "evidence": "Houssam MIRROU ; une attribution de rôle au périmètre HMirrou ; libellé Apprenant-DataML-Form… tronqué ; aucune attribution refusée. Ne démontre pas le moindre privilège.",
+    "section": "Gouvernance",
+    "confidence": "Élevée sur le visible ; limite explicitée",
+    "sha256": "9e4a3e308a3af7463cbf64907111e5976c1b6077a48a9a97276de86b69e906e9"
+  },
+  {
+    "id": "E03",
+    "file": "Screenshots/03-storage-account-01.png",
+    "service": "Azure Storage",
+    "evidence": "Formulaire : stforecastbrief1 ; HMirrou ; North Europe. Configuration, pas encore création.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "3c0792e51d1f289c769496d5cfe2e0b65fb1f6cac8798afee27e72fc5bfd3934"
+  },
+  {
+    "id": "E04",
+    "file": "Screenshots/03-storage-account-02.png",
+    "service": "Azure Storage",
+    "evidence": "Formulaire : Standard ; Big Data Analytics ; réplication LRS.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "c51e531136905dad084e3d2420f1fe681f9f2a3956a4f1e333b49badcc36b9c8"
+  },
+  {
+    "id": "E05",
+    "file": "Screenshots/03-storage-account-03.png",
+    "service": "Azure Storage",
+    "evidence": "Récapitulatif : HNS activé ; LRS ; Hot ; SFTP/NFS v3 désactivés.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "acdba487d13d0b9a90be40adcf6953c37382d276adad5e6872809331e7c3ffd4"
+  },
+  {
+    "id": "E06",
+    "file": "Screenshots/03-storage-account-04.png",
+    "service": "Azure Resource Manager",
+    "evidence": "Déploiement de stforecastbrief1 en cours ; opération Accepted ; pas un succès final.",
+    "section": "Architecture",
+    "confidence": "Élevée",
+    "sha256": "4dbcc1a25a96669b9e0d8c9eaba285e2a674b93754b97de4b8bf1ea5cd46ca6b"
+  },
+  {
+    "id": "E07",
+    "file": "Screenshots/03-storage-account-05-overview.png",
+    "service": "Azure Storage",
+    "evidence": "Provisioning Succeeded ; StorageV2 ; North Europe ; LRS ; HNS activé ; anonyme désactivé ; soft delete blobs/conteneurs 7 jours ; versioning désactivé ; TLS 1.2 ; secure transfer activé ; clés et réseau public tous réseaux activés ; 0 private endpoints ; infrastructure encryption désactivé.",
+    "section": "Stockage ; Gouvernance",
+    "confidence": "Élevée",
+    "sha256": "daec262d8b66de320ef2af753c2ab2a3410a40fe0f7544246faadbe6fd2b3a49"
+  },
+  {
+    "id": "E08",
+    "file": "Screenshots/04-container-created.png",
+    "service": "Azure Storage",
+    "evidence": "Conteneur consumption créé ; accès Private ; également $logs.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "f88cf23d7841d87e751816107e66de991e50f93c6aa9297fd99318649061a660"
+  },
+  {
+    "id": "E09",
+    "file": "Screenshots/05-folder-structer.png",
+    "service": "Azure Storage",
+    "evidence": "consumption/raw/2026/11/24 ; répertoire vide ; méthode Access key.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "4fe5a38f99c10e679ab30f5c6222532e9e46dc15a95b20a68e9277e66a225a22"
+  },
+  {
+    "id": "E10",
+    "file": "Screenshots/06-create-datafactory-02.png",
+    "service": "Azure Data Factory",
+    "evidence": "Récapitulatif : adf-forecastbrief1 ; V2 ; North Europe ; public endpoint.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "e81e24cc010aeb7dff8bab90b123b3395ef10ab4c2774c61d3c5aef85864a008"
+  },
+  {
+    "id": "E11",
+    "file": "Screenshots/06-create-datafactory-03.png",
+    "service": "Azure Resource Manager",
+    "evidence": "Déploiement CreateDataFactory terminé avec succès dans HMirrou.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "928b3dd599ee792c3febe8e22c6e1f490976b4f5f6e8a23852e687da839fa9b8"
+  },
+  {
+    "id": "E12",
+    "file": "Screenshots/06-create-datafactory-04.png",
+    "service": "Azure Resource Manager",
+    "evidence": "Deux déploiements réussis ; liste affichée : un compte de stockage. Liste partielle/temporelle, ne prouve pas absence ADF.",
+    "section": "Architecture",
+    "confidence": "Élevée sur le visible ; limite explicitée",
+    "sha256": "5419a76aa4becf0d93d20df33f59393a814694e378b51cc0f03c74e59f719167"
+  },
+  {
+    "id": "E13",
+    "file": "Screenshots/06-create-datafactory.png",
+    "service": "Azure Data Factory",
+    "evidence": "Formulaire : adf-forecastbrief1 ; HMirrou ; North Europe ; V2.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "42a733cb3f14720100a67636404e4ac7ef0e826ac02df50734c879b517876aa8"
+  },
+  {
+    "id": "E14",
+    "file": "Screenshots/07-datafactory-studio.png",
+    "service": "Azure Data Factory Studio",
+    "evidence": "Accueil adf-forecastbrief1 accessible ; bannière de configuration Git ; aucune preuve de dépôt lié.",
+    "section": "Ingestion ; Reproductibilité",
+    "confidence": "Élevée",
+    "sha256": "e34310cd6d9b165eb44f3a105c0a2f1968bb4714c7a638a1e7824ed190e0ac3f"
+  },
+  {
+    "id": "E15",
+    "file": "Screenshots/08-create-linked-service-2.png",
+    "service": "Azure Data Factory",
+    "evidence": "ls_adls_forecast dans les linked services ; type Azure Data Lake Storage Gen2.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "3c708813e4ac0fd0ff99e5eeea18d9d6cca00cfd95766e5330e63db7842724db"
+  },
+  {
+    "id": "E16",
+    "file": "Screenshots/08-create-linked-service.png",
+    "service": "Azure Data Factory",
+    "evidence": "ls_adls_forecast ; AutoResolveIntegrationRuntime ; Account key ; stforecastbrief1 ; Connection successful.",
+    "section": "Ingestion ; Gouvernance",
+    "confidence": "Élevée",
+    "sha256": "6533d9aa35afafa19200c8ed2be30f69bae3b8ed5699258b879bd59aabf8b47a"
+  },
+  {
+    "id": "E17",
+    "file": "Screenshots/09-upload-csv.png",
+    "service": "Azure Storage",
+    "evidence": "consumption/source/pjme hourly.csv ; block blob ; 3.88 MiB ; 24/11/2026 16:37:13 ; Access key.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "542ccd2e2b96793b7abf6d996a7ec2bde395e40994888ec54795c06a7f6b686e"
+  },
+  {
+    "id": "E18",
+    "file": "Screenshots/10-add-csv-to-datafactory-studio.png",
+    "service": "Azure Data Factory",
+    "evidence": "ds_source_csv ; consumption/source/pjme hourly.csv ; première ligne en-tête ; import du schéma depuis stockage.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "4aed043da938c6542075efb927969abd0f3424b1cbc3062d4b3fbbda18c4073b"
+  },
+  {
+    "id": "E19",
+    "file": "Screenshots/10-added-csv-to-datafactory-studio-preview.png",
+    "service": "Azure Data Factory",
+    "evidence": "Aperçu réel : Datetime et PJME_MW ; heures du 31/12/2002 ; exemples 26498.0 et 25147.0 ; infobulle masque une cellule. Ne prouve pas contrôle exhaustif.",
+    "section": "Ingestion ; EDA",
+    "confidence": "Élevée",
+    "sha256": "9e870fd94eb184234f69d16f2340a58d39d3471d629a144df73823e754ca09e0"
+  },
+  {
+    "id": "E20",
+    "file": "Screenshots/10-added-csv-to-datafactory-studio.png",
+    "service": "Azure Data Factory",
+    "evidence": "ds_source_csv ; DelimitedText ; virgule ; UTF-8 ; sans compression ; en-tête activé.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "19d366f9579d7d06487ffd93e32e56bbb4d06eb4af078e9f6ac72fb77f788fbe"
+  },
+  {
+    "id": "E21",
+    "file": "Screenshots/11-add-csv-to-datafactory-studio-raw-path.png",
+    "service": "Azure Data Factory",
+    "evidence": "ds_raw_csv vers raw/2026/11/24 ; message Failed partiellement coupé près de l’aperçu ; cause non lisible.",
+    "section": "Difficultés",
+    "confidence": "Élevée sur le visible ; limite explicitée",
+    "sha256": "b3461ac26d1ee8666c297e2ddc6f72d01c0ce9307081ae2ae68192d860b216fd"
+  },
+  {
+    "id": "E22",
+    "file": "Screenshots/11-added-csv-to-datafactory-studio-raw-path-.png",
+    "service": "Azure Data Factory",
+    "evidence": "Publishing completed ; ds_raw_csv publié ; message Failed encore présent pour aperçu destination. Publication distincte de l’exécution.",
+    "section": "Difficultés",
+    "confidence": "Élevée sur le visible ; limite explicitée",
+    "sha256": "87fe52e520b18477852cbd7e30495d139325712551a1532d9bbb230175ee82a6"
+  },
+  {
+    "id": "E23",
+    "file": "Screenshots/12-creating-pipeline-added-csv-1-configure source.png",
+    "service": "Azure Data Factory",
+    "evidence": "pipeline1 ; copy_consumption_csv ; source ds_source_csv ; pas de résultat d’exécution.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "1dd9e1bf128dbc79dc541e6cd10609eb9a653047b83a21d1009377cebd3de9c7"
+  },
+  {
+    "id": "E24",
+    "file": "Screenshots/12-creating-pipeline-added-csv-2-configure destination.png",
+    "service": "Azure Data Factory",
+    "evidence": "Pipeline renommé pl_ingest_consumption ; sink ds_raw_csv ; extension .txt visible.",
+    "section": "Ingestion ; Difficultés",
+    "confidence": "Élevée",
+    "sha256": "9c85077ede6416068c3d402743b9d177f01d7ead7554b549474a46f011438536"
+  },
+  {
+    "id": "E25",
+    "file": "Screenshots/12-creating-pipeline-added-csv.png",
+    "service": "Azure Data Factory",
+    "evidence": "pl_ingest_consumption ; activité copy_consumption_csv ; timeout 12 h ; retry 0 ; secure input/output non cochés ; configuration.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "cc97598b394fa964790561b76b9925a78d966e41e6b1368dbcbb154c41815211"
+  },
+  {
+    "id": "E26",
+    "file": "Screenshots/Screenshot 2026-11-25 093806.png",
+    "service": "Azure Data Factory",
+    "evidence": "Mapping explicite Datetime → Datetime et PJME_MW → PJME_MW ; deux types String.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "01ea0a12ec5129bf5d986a109afbc2defda8726d4410bca58e01ec2532a32d99"
+  },
+  {
+    "id": "E27",
+    "file": "Screenshots/Screenshot 2026-11-25 095201.png",
+    "service": "Azure Data Factory",
+    "evidence": "Activité Succeeded ; 19 s ; démarrage 25/11/2026 09:51:33 ; pipeline encore In progress ; run 766baa00-cadd-4f75-81db-ecd5cce13f1b.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "97efde39a69a7fe2462ba3d9f1d0c0edd627ff0933f385950f5cdf7605445092"
+  },
+  {
+    "id": "E28",
+    "file": "Screenshots/Screenshot 2026-11-25 095254.png",
+    "service": "Azure Storage",
+    "evidence": "raw/2026/11/25/pjme hourly.txt ; 4.57 MiB ; 09:51:49. Sortie texte, pas copie binaire identique démontrée.",
+    "section": "Stockage ; Difficultés",
+    "confidence": "Élevée",
+    "sha256": "e4bdf7fe1343db91d52cfd009094980e36c9fa18323f2911710664d2397d2496"
+  },
+  {
+    "id": "E29",
+    "file": "Screenshots/Screenshot 2026-11-25 100000.png",
+    "service": "Azure Data Factory",
+    "evidence": "Pipeline et activité Succeeded ; 17 s ; démarrage 09:59:26 le 25/11/2026 ; run 8748d7a7-51ac-43ad-81fe-6085a3b4ea2f.",
+    "section": "Ingestion",
+    "confidence": "Élevée",
+    "sha256": "cb03d1add5a093f1d0b8c70c569eb95b6bb9a84014b81b2ef814790202a57dc4"
+  },
+  {
+    "id": "E30",
+    "file": "Screenshots/Screenshot 2026-11-25 100017.png",
+    "service": "Azure Storage",
+    "evidence": "raw/2026/11/25 contient pjme hourly.csv et pjme hourly.txt ; chacun 4.57 MiB ; CSV modifié 09:59:40.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "edefd5e411d5cdc8470ef1c3c5026965e54c18c4f67c1f818691e34ecdf1998d"
+  },
+  {
+    "id": "E31",
+    "file": "Screenshots/Screenshot 2026-11-25 100424.png",
+    "service": "Azure ML",
+    "evidence": "Création ml-forecastbrief1 ; North Europe ; ressources associées proposées ; pas encore succès.",
+    "section": "Architecture",
+    "confidence": "Élevée",
+    "sha256": "d0310730bed310d9816ccaf30d7ff432704c8331c3f069d22a2db31fdafa5b3c"
+  },
+  {
+    "id": "E32",
+    "file": "Screenshots/Screenshot 2026-11-25 100551.png",
+    "service": "Azure ML",
+    "evidence": "ml-forecastbrief1 ; Provisioning State Succeeded ; North Europe ; stockage associé distinct de stforecastbrief1 ; Key Vault et Application Insights visibles.",
+    "section": "Architecture",
+    "confidence": "Élevée",
+    "sha256": "cf3b7a078fbd366ae48c5656038aa084c259f5b3806274c1c8b24cc3f5c61e74"
+  },
+  {
+    "id": "E33",
+    "file": "Screenshots/Screenshot 2026-11-25 101326.png",
+    "service": "Azure ML",
+    "evidence": "Formulaire ds_adls_forecast ; Azure Data Lake Storage Gen2 ; stforecastbrief1 ; consumption ; sauvegarde credentials et identité workspace pour aperçu désactivées.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "5a27f7eae6693dd20ce98137163b8dc1b6fb3d6ab9f8703cb8c79d7aa3726284"
+  },
+  {
+    "id": "E34",
+    "file": "Screenshots/Screenshot 2026-11-25 101743.png",
+    "service": "Azure ML",
+    "evidence": "Create success ; ds_adls_forecast créé ; type Azure Data Lake Storage Gen2 ; auteur Houssam MIRROU. Création ne prouve pas accès aux octets.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "35c9828037f23f52e1be18cd07f8fef5322e4149f96169449e717d92ae875db7"
+  },
+  {
+    "id": "E35",
+    "file": "Screenshots/Screenshot 2026-11-25 102926.png",
+    "service": "Azure ML Compute",
+    "evidence": "CPU Dedicated ; North Europe ; sélection Standard_DS11_v2 ; 2 cores ; 14 GB RAM ; 28 GB stockage selon interface.",
+    "section": "Compute",
+    "confidence": "Élevée",
+    "sha256": "548790bdf209a03d3fce022ef4f98431eba4477cf579169429e9bae47d0bf43f"
+  },
+  {
+    "id": "E36",
+    "file": "Screenshots/Screenshot 2026-11-25 102939.png",
+    "service": "Azure ML Compute",
+    "evidence": "cpu-forecast ; Standard_DS11_v2 ; min 0 ; max 1 ; scale down 120 s ; SSH désactivé ; formulaire.",
+    "section": "Compute",
+    "confidence": "Élevée",
+    "sha256": "54b0bdd6b4664557e463246e277e7a500d24e6a98dfeef4654c5c68c85c21a0b"
+  },
+  {
+    "id": "E37",
+    "file": "Screenshots/Screenshot 2026-11-25 114359.png",
+    "service": "Azure ML Data",
+    "evidence": "Récapitulatif pjme_consumption ; uri_file ; datastore ds_adls_forecast ; raw/2026/11/25/pjme hourly.csv.",
+    "section": "Stockage",
+    "confidence": "Élevée",
+    "sha256": "abdce6db77c57c6756ec80f4b77fab83d64854b37f58c76e17adcbe6d5cbe13b"
+  },
+  {
+    "id": "E38",
+    "file": "Screenshots/Screenshot 2026-11-25 114614.png",
+    "service": "Azure ML Data",
+    "evidence": "pjme_consumption version 1 créé ; ds_adls_forecast ; URI dfs.core.windows.net ; Houssam MIRROU ; 25/11/2026 11:46. Ne démontre pas connexion Blob finale.",
+    "section": "Stockage ; Traçabilité",
+    "confidence": "Élevée",
+    "sha256": "ac4405927ebf8ca27c658424e36baeb45d9e38d6379f589e553739989c6dab84"
+  },
+  {
+    "id": "E39",
+    "file": "Screenshots/Screenshot 2026-11-25 114751.png",
+    "service": "Azure ML Designer",
+    "evidence": "Canvas vide ; No data assets found. Constat à cet instant, sans cause prouvée.",
+    "section": "Difficultés",
+    "confidence": "Élevée sur le visible ; limite explicitée",
+    "sha256": "7a7201c0dd513fa5b44c3dae541f3162b0c62beabe4500c4eb97e5c0e204457c"
+  },
+  {
+    "id": "E40",
+    "file": "Screenshots/Screenshot 2026-11-25 115420.png",
+    "service": "Azure ML Designer",
+    "evidence": "pl_pjme_forecasting ; pjme_consumption v1 désormais visible dans bibliothèque ; canvas vide.",
+    "section": "Difficultés",
+    "confidence": "Élevée",
+    "sha256": "5c6d11a2d3c6fafbec01329dd97d60fbeaeefa2fc0a9f60e0fb697cbb0e5b5a3"
+  },
+  {
+    "id": "E41",
+    "file": "Screenshots/Screenshot 2026-11-25 115551.png",
+    "service": "Azure ML Designer",
+    "evidence": "pjme_consumption v1 ajouté au canvas ; bibliothèque composants ; pas d’exécution.",
+    "section": "Architecture",
+    "confidence": "Élevée",
+    "sha256": "7537fbb7d3e39eef7c1513f7dbeb21222586991659b33a6aaa87c91c947e332c"
+  },
+  {
+    "id": "E42",
+    "file": "Screenshots/Screenshot 2026-11-25 121004.png",
+    "service": "Azure ML Designer",
+    "evidence": "Trois composants PJME Prepare, Train random forest, Evaluate présents et enregistrés en v1 ; placés mais entrées rouges non reliées ; aucune exécution démontrée.",
+    "section": "Annexes ; Reproductibilité",
+    "confidence": "Élevée",
+    "sha256": "3e96959b3c66134faeddcdefc4abd934420529247e9e7d8ef474a47314778c1c"
+  },
+  {
+    "id": "E43",
+    "file": "Screenshots/Screenshot 2026-11-25 141217.png",
+    "service": "Azure ML Classic Designer",
+    "evidence": "pl_pjme_forecasting_classic ; pjme_consumption2 v1 connecté à Summarize Data.",
+    "section": "EDA",
+    "confidence": "Élevée",
+    "sha256": "54440d4e9a3d4d30a48a7168257b6bf29bff759d6ca6c538b784bea83040c29a"
+  },
+  {
+    "id": "E44",
+    "file": "Screenshots/Screenshot 2026-11-25 141635.png",
+    "service": "Azure ML Classic Designer",
+    "evidence": "Validation graphe positive ; revue job pjme-eda-v1 ; expérience pjme-forecasting ; compute cpu-forecast ; continue on step failure True.",
+    "section": "EDA",
+    "confidence": "Élevée",
+    "sha256": "5be35b503a3041ef233edd014995a60364f71bacb7ea7ae67d56af9bb4ad525b"
+  },
+  {
+    "id": "E45",
+    "file": "Screenshots/Screenshot 2026-11-25 141917.png",
+    "service": "Azure ML Classic Designer",
+    "evidence": "Soumission pjme-eda-v1 réussie ; job Running ; pas encore Completed.",
+    "section": "EDA",
+    "confidence": "Élevée",
+    "sha256": "984b9106c3233cdc6938a8869fa7aa67ef46fdd4d267355e651b259839feb670"
+  },
+  {
+    "id": "E46",
+    "file": "Screenshots/Screenshot 2026-11-25 142222.png",
+    "service": "Azure ML Jobs",
+    "evidence": "pjme-eda-v1 Running ; Summarize Data en attente ; run 6df683b2-cc3c-4344-bfc5-0475e081d143.",
+    "section": "EDA",
+    "confidence": "Élevée",
+    "sha256": "344ac95ceff8a01b099475b42868b7c04f3646225000f22283bc3f076753d8cb"
+  },
+  {
+    "id": "E47",
+    "file": "Screenshots/Screenshot 2026-11-25 143342.png",
+    "service": "Azure ML Compute",
+    "evidence": "cpu-forecast provisionné ; allocation Succeeded (1 node), Preparing ; DS11_v2 2 cores 14 GB ; Linux Dedicated ; minimum 0 visible.",
+    "section": "Compute",
+    "confidence": "Élevée",
+    "sha256": "2811b4fca7c6b873b4170827dcaa6eb2018d888688073964a679af9a395df61a"
+  },
+  {
+    "id": "E48",
+    "file": "Screenshots/Screenshot 2026-11-25 152332.png",
+    "service": "Azure ML Visualisation",
+    "evidence": "Sortie Summarize Data : 2 lignes de statistiques, 23 colonnes ; chaque variable Count 145366 ; Datetime unique 145362 ; manquants 0 chacun ; PJME_MW min 14544.0, max 62009.0, moyenne 32080.222830648156, médiane 31421.0 ; dates min 2002-01-01 01:00:00+00:00 et max 2018-08-03 00:00:00+00:00. Provenance run différent de l’EDA initiale : c7b7d460-a4b2-4eb2-93c9-547fbb5a5448.",
+    "section": "EDA",
+    "confidence": "Élevée",
+    "sha256": "2d4f8423b1a99913e1830691991715500fe886891ed994982fdb40fba3b347f3"
+  },
+  {
+    "id": "E49",
+    "file": "Screenshots/Screenshot 2026-11-25 152627.png",
+    "service": "Azure ML Classic Designer",
+    "evidence": "pjme_consumption_3 v1 ; branches Summarize Data et Clean Missing Data ; avertissement configuration sur nettoyage ; pas de paramètres détaillés.",
+    "section": "Prétraitement",
+    "confidence": "Élevée",
+    "sha256": "d35c7e3c5ec3a0ae00cbf686a2bebd16b9e803fef0202857d65dff5ab515338b"
+  },
+  {
+    "id": "E50",
+    "file": "Screenshots/Screenshot 2026-11-25 163317.png",
+    "service": "Azure ML Classic Designer",
+    "evidence": "Split Data vers deux Select Columns ; Decision Forest Regression → Train Model → Score Model → Evaluate Model ; câblage visible ; configuration split non affichée.",
+    "section": "Séparation ; Entraînement",
+    "confidence": "Élevée",
+    "sha256": "1dc00058a34644d40f311d56353136920c4072e73675ff2e757e66648a48de36"
+  },
+  {
+    "id": "E51",
+    "file": "Screenshots/Screenshot 2026-11-25 170518.png",
+    "service": "Azure ML Jobs",
+    "evidence": "pl_pjme_forecasting_classic Running ; Summarize, Clean Missing, Remove Duplicate, deux Edit Metadata et Python avec coches vertes/cache ; source pjme_consumption_3 ; run f9afd8ab-33a6-48ac-bbb0-432bac286e56.",
+    "section": "Prétraitement",
+    "confidence": "Élevée",
+    "sha256": "6c87624ef680a5a1f55f80a5b0abfebe5fb8a02f493d8c2ac74745e59cfdee32"
+  },
+  {
+    "id": "E52",
+    "file": "Screenshots/Screenshot 2026-11-25 170543.png",
+    "service": "Azure ML Jobs",
+    "evidence": "Même run f9afd8ab… ; Python et forêt verts ; Split Data en exécution ; Train/Score/Evaluate pas encore terminés dans cette image.",
+    "section": "Entraînement",
+    "confidence": "Élevée",
+    "sha256": "fb465fe33afec48b7525ba8e1ced66e35fe66aa43795dce7e094056377a9d539"
+  },
+  {
+    "id": "E53",
+    "file": "Screenshots/Screenshot 2026-11-25 171054.png",
+    "service": "Azure ML Visualisation",
+    "evidence": "Évaluation liée au run f9afd8ab… ; MAE 3177.774545 ; RMSE 4251.194918 ; RSE 0.429223 ; RAE 0.630538 ; R² 0.570777 ; 1 ligne, 5 colonnes.",
+    "section": "Évaluation",
+    "confidence": "Élevée",
+    "sha256": "96472091d4815ce7b27197c8270249e8f5ec42eb99e33ec0b35095d79acc941d"
+  },
+  {
+    "id": "E54",
+    "file": "Screenshots/Screenshot 2026-11-25 171108.png",
+    "service": "Azure ML Visualisation",
+    "evidence": "Même run f9afd8ab… ; Scored_dataset : 29074 lignes, 8 colonnes ; PJME_MW, Hour, DayOfWeek, Month, Quarter, Year, DayOfYear, Scored Labels ; valeurs calendrier et prédictions réelles.",
+    "section": "Features ; Évaluation",
+    "confidence": "Élevée",
+    "sha256": "87ddbe74ec744dcf121fc88bb58d2cb39561f029cd682c055bab0c37b1b6b60e"
+  },
+  {
+    "id": "E55",
+    "file": "Screenshots/Screenshot 2026-11-25 171551.png",
+    "service": "Azure ML Models",
+    "evidence": "forecastingmodelv1 version 1 ; CUSTOM ; expérience train_model_experiment ; créé 25/11/2026 17:15 ; run enfant 9fd9598e-62fa-4638-9d3a-e8e… tronqué. Enregistrement confirmé, liaison exacte métriques/modèle non exportée.",
+    "section": "Enregistrement",
+    "confidence": "Élevée sur le visible ; limite explicitée",
+    "sha256": "0d5a7e2c3bcbe12204ad2d0f5159e55581ace8ccc7cf41522b231e9d8fb82361"
+  },
+  {
+    "id": "E56",
+    "file": "Screenshots/Screenshot 2026-11-25 171639.png",
+    "service": "Azure ML Designer",
+    "evidence": "Pipeline pl_pjme_forecasting_classic-real time inference généré ; transformation TD ; pjme_consumption_3 ; Apply Transformation ; Remove Duplicate ; Edit Metadata ; état édition.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "98bc1d3d0c0d6a5a27ff845ef942e0d45df5b25ea8ce0c922ecf4fbce2d2bd68"
+  },
+  {
+    "id": "E57",
+    "file": "Screenshots/Screenshot 2026-11-25 171649.png",
+    "service": "Azure ML Designer",
+    "evidence": "Même brouillon inférence ; Python ; sélection colonnes ; artefact MD-…Train_M… v1 connecté à Score Model.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "b48f1f6b3fb19191cd52c6d62708f11edc2d99e9420b97cbd35bff2450db3d5d"
+  },
+  {
+    "id": "E58",
+    "file": "Screenshots/Screenshot 2026-11-25 171654.png",
+    "service": "Azure ML Designer",
+    "evidence": "Brouillon inférence ; Score Model vers Web Service Output et Evaluate Model ; pas de déploiement démontré.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "3fef473b3a87d9deed3eec6dc2d83d838878f55d0bd06dbbd0e7c4d8905e3243"
+  },
+  {
+    "id": "E59",
+    "file": "Screenshots/Screenshot 2026-11-25 171830.png",
+    "service": "Azure ML Designer",
+    "evidence": "Autre brouillon même nom inférence ; haut du graphe transformation/nettoyage ; pas de statut job.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "35a169cea85f0c90f95aef2a9d406092c5611d662ed29347cd883aba75ce1e10"
+  },
+  {
+    "id": "E60",
+    "file": "Screenshots/Screenshot 2026-11-25 171834.png",
+    "service": "Azure ML Designer",
+    "evidence": "Même autre brouillon ; bas du graphe Score/Output/Evaluate ; pas d’entrée Web Service Input visible.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "ee4f774d8efd6334e9d98300f28130954a106b9d28c3bfaf30ac3dcc09c40b57"
+  },
+  {
+    "id": "E61",
+    "file": "Screenshots/Screenshot 2026-11-26 113827.png",
+    "service": "Azure ML Jobs",
+    "evidence": "Workspace ml-forecastbrief-1-2 ; experiment_2 ; pipeline inférence Completed ; transformation/nettoyage/métadonnées/Python verts ; run 67d0f4cf-1186-47d3-a67a-c1cd61a30b8c. Prouve changement workspace, pas sa cause.",
+    "section": "Inférence ; Difficultés",
+    "confidence": "Élevée",
+    "sha256": "282286faceb7a9f2dcd07621805ceec35388e02daa3c94880f4df17b70597c30"
+  },
+  {
+    "id": "E62",
+    "file": "Screenshots/Screenshot 2026-11-26 113834.png",
+    "service": "Azure ML Jobs",
+    "evidence": "Même run 67d0f4cf… Completed ; Select Columns, Score Model et Evaluate Model verts ; Web Service Output ; aucune métrique chiffrée ni réponse API.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "7278ceccc706d6294767760901dc86d1826052c2f7c53e6b8fdbe4d99c2d4e27"
+  },
+  {
+    "id": "E63",
+    "file": "Screenshots/Screenshot 2026-11-26 133611.png",
+    "service": "Azure ML Jobs",
+    "evidence": "Même run 67d0f4cf… et workspace ; nouvelle capture du haut à 13:36 ; aucune nouvelle exécution démontrée.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "53ea261bb080586a44241e452679b7ea964431a667108617338ff6532ac79fbc"
+  },
+  {
+    "id": "E64",
+    "file": "Screenshots/Screenshot 2026-11-26 133616.png",
+    "service": "Azure ML Jobs",
+    "evidence": "Même run 67d0f4cf… Completed ; bas du graphe à 13:36 ; doublon utile pour lecture, pas un second succès indépendant.",
+    "section": "Inférence",
+    "confidence": "Élevée",
+    "sha256": "0215158f824d79d88c8903668b88b26c00a148d87bda4ff7652be4320ec4bff7"
+  }
+]

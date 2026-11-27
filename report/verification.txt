@@ -1,0 +1,18 @@
+VÉRIFICATION DU LIVRABLE — 27/11/2026
+
+rapport_final_azure_fintech.pdf : 15 pages A4, français, PDF valide.
+qpdf --check : aucun défaut de syntaxe ni encodage de flux signalé.
+Poppler pdfinfo / pdftotext / pdffonts : ouverture et extraction réussies.
+Polices Noto Sans Regular/Bold et Noto Sans Mono intégrées, Unicode disponible.
+Aucun caractère utilisé par le générateur ne manque dans la table de glyphes Noto Sans.
+Le texte extrait ne contient pas de caractère de remplacement Unicode.
+Boîtes du texte PDF contrôlées : toutes dans les dimensions de page.
+15 pages rendues en PNG dans rendered/, puis inspectées visuellement.
+Recadrages corrigés et pages modifiées réinspectées.
+Aucune page vide, aucun chevauchement ou accent défectueux constaté.
+64 captures originales inspectées ; 10 captures distinctes incluses.
+SHA-256 des 64 originaux comparés au manifeste : tous inchangés.
+Métriques transcrites d'E53 : MAE 3177.774545 ; RMSE 4251.194918 ; R² 0.570777.
+E54 : 29 074 lignes de test. Aucune métrique recalculée ou inventée.
+Séparation temporelle Classic, connecteur Blob final et endpoint : limites explicitement signalées.
+Les sources, les paramètres de recadrage et les instructions de régénération sont joints.

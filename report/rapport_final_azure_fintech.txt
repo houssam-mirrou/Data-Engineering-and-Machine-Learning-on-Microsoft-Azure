@@ -1,0 +1,751 @@
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                              Houssam MIRROU · 27.11.2026
+
+
+
+
+RAPPORT FINAL · PROJET TECHNIQUE
+
+
+
+
+Conception et mise en œuvre
+d’un pipeline End-to-End
+de Data Engineering et de Machine Learning sur
+Microsoft Azure pour la prévision de la consommation
+électrique
+
+
+
+Microsoft Azure / Data Engineering / Machine Learning
+Auteur : Houssam MIRROU
+Cadre : formation Simplon — intitulé exact du parcours non fourni
+Date de remise : 27 novembre 2026
+
+
+
+
+   Du CSV à l’évaluation d’un modèle de régression
+   Ingestion ADF démontrée · Stockage hiérarchique · Designer Classic · Modèle enregistré · Job
+   d’inférence terminé
+
+
+Périmètre documentaire : 64 captures inspectées visuellement, trois scripts Python et trois définitions YAML. Les résultats, les limites
+de preuve et les travaux restant à finaliser sont distingués dans le rapport.
+
+
+Période indiquée dans le brief : du 23/11/2025 au 27/11/2026 à 17:30. L’écart d’année apparent est conservé et discuté en
+introduction.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                            01 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                         Houssam MIRROU · 27.11.2026
+
+
+
+
+02 / RÉSUMÉ EXÉCUTIF
+
+
+Une chaîne Azure démontrée,
+une mise en production à compléter
+L’objectif est de construire, dans un contexte fintech, une chaîne de préparation et de modélisation de la
+consommation électrique horaire. Azure Data Factory copie les données vers un stockage Azure à espace
+de noms hiérarchique ; Azure Machine Learning assure l’exploration, le prétraitement, l’apprentissage et
+l’évaluation.
+
+Les captures confirment une copie ADF réussie, une forêt de régression dans Designer Classic, des
+prédictions sur 29 074 observations et l’enregistrement de forecastingmodelv1, version 1. Un job
+d’inférence est ensuite Completed dans un autre workspace. La disponibilité d’une API temps réel n’est pas
+démontrée. [E29, E53–E55, E61–E64]
+
+
+   Résultat vérifié : performance explicative modérée
+   MAE : 3 177,774545 MW · RMSE : 4 251,194918 MW
+   R² : 0,570777. Ces valeurs appartiennent au run Classic du 25/11 ; elles ne sont pas attribuées au job
+   d’inférence du 26/11.
+
+
+Sommaire
+
+  Section                                                                                             Page
+
+  03 · Introduction et contexte métier / 04 · Architecture                                            3
+
+  05 · Ingestion et orchestration                                                                     4
+
+  06 · Stockage et organisation                                                                       5
+
+  Infrastructure ML : workspace et calcul CPU                                                         6
+
+  07 · Analyse exploratoire                                                                           7
+
+  08 · Prétraitement et Feature Engineering                                                           8
+
+  09 · Préparation et séparation temporelle                                                           9
+
+  10 · Entraînement du modèle                                                                         10
+
+  11 · Évaluation des performances                                                                    11
+
+  12 · Enregistrement et inférence                                                                    12
+
+  13 · Gouvernance, sécurité et RGPD                                                                  13
+
+  14 · Difficultés / 15 · Conclusion et perspectives                                                  14
+
+  16 · Annexes : code, preuves et références                                                          15
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                    02 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                          Houssam MIRROU · 27.11.2026
+
+
+
+
+03 / INTRODUCTION ET CONTEXTE MÉTIER
+
+
+Prévoir la consommation,
+structurer un flux traçable
+Le rôle de Data Developer en fintech conduit ici à traiter une série énergétique comme cas d’usage de
+pipeline de données et de Machine Learning. Une prévision peut contribuer à une analyse de risque ou à
+une simulation d’exposition énergétique ; aucun bénéfice financier ni usage métier en production n’a été
+mesuré dans ce projet.
+
+La cible PJME_MW représente une puissance électrique agrégée, exprimée en mégawatts. Malgré le terme
+« consommation » du sujet, il ne s’agit pas directement d’une énergie en MWh. Datetime situe l’observation
+horaire. Le modèle démontré apprend essentiellement les régularités calendaires de cette série.
+
+04 / Architecture technique
+
+           SOURCE STOCKÉE                                   DATA FACTORY                                  ZONE RAW
+
+         consumption/source/                               adf-forecastbrief1                          stforecastbrief1
+             pjme hourly.csv                              pl_ingest_consumption                        raw/2026/11/25/
+
+
+
+
+   AZURE MACHINE LEARNING · ml-forecastbrief1 · cpu-forecast
+
+   Préparation / séparation / Decision Forest / Score / Evaluate
+
+   Datastore ADLS enregistré ; continuité exacte vers les assets Classic à tracer
+
+
+Schéma de synthèse — E07, E15–E20, E29–E38, E50–E54. La liaison vers ML représente le chemin prévu ; les preuves ne couvrent pas
+tous les changements d’assets. Le job d’inférence ultérieur est dans ml-forecastbrief-1-2 (E61–E64).
+
+ADF réalise la copie depuis un fichier déjà déposé dans Azure Storage. Le traitement tabulaire et
+l’apprentissage sont portés par le calcul CPU d’Azure ML. Aucune VM de traitement autonome, activité ADF
+déclenchant ML ou orchestration intégrale planifiée n’est démontrée : la chaîne est documentée par étapes
+successives.
+
+
+   Contraintes du cahier des charges
+   North Europe ; CPU avec autoscaling de 0 à 1 nœud ; séparation temporelle 80/20 ; qualité, sécurité et
+   reproductibilité. Le brief indique 23/11/2025–27/11/2026 à 17:30, alors que les captures documentent
+   les 24–26/11/2026 : l’année de début reste à clarifier.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                      03 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                             Houssam MIRROU · 27.11.2026
+
+
+
+
+05 / INGESTION ET ORCHESTRATION
+
+
+Une copie ADF exécutée
+et vérifiée dans le stockage
+La fabrique adf-forecastbrief1 (V2, North Europe) utilise le service lié ls_adls_forecast de type ADLS Gen2.
+Le test de connexion est positif avec une clé de compte et AutoResolveIntegrationRuntime. Le dataset
+ds_source_csv référence consumption/source/pjme hourly.csv. [E10–E20]
+
+La lecture est configurée en DelimitedText, séparateur virgule, UTF-8, sans compression, avec première
+ligne d’en-tête. L’aperçu montre Datetime et PJME_MW ; le mapping explicite conserve les deux colonnes,
+initialement déclarées String. Cela confirme un schéma lu, sans prouver une validation exhaustive de toutes
+les lignes. [E19, E20, E26]
+
+
+
+
+Figure 1 — Exécution réussie de pl_ingest_consumption · E29. Recadrage de la capture originale.
+
+L’activité copy_consumption_csv et le pipeline portent le statut Succeeded. Le démarrage affiché est le
+25/11/2026 à 09:59:26, pour une activité de 17 s. Le run est identifié par
+8748d7a7-51ac-43ad-81fe-6085a3b4ea2f. La présence du CSV en destination est confirmée séparément
+dans le stockage. [E29, E30]
+
+Portée de l’orchestration
+Le pipeline contient une activité de copie. Les captures ne montrent ni déclencheur récurrent ni
+dépendance d’exécution vers Azure ML. Pour automatiser l’ensemble, il resterait à paramétrer la date
+d’ingestion, les contrôles bloquants, les reprises et le lancement du job ML après validation du dépôt.
+
+Le premier essai produit une extension .txt, cohérente avec le paramètre de sink visible ; une seconde exécution produit le .csv. Les
+deux fichiers restent visibles. Les durées et statuts de ces essais sont conservés séparément. [E24, E27–E30]
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                          04 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                          Houssam MIRROU · 27.11.2026
+
+
+
+
+06 / STOCKAGE ET ORGANISATION DES DONNÉES
+
+
+Une zone raw datée,
+une filiation à consolider
+Le compte stforecastbrief1 est provisionné dans HMirrou, en North Europe : StorageV2, performance
+Standard, réplication LRS, niveau Hot et espace de noms hiérarchique activé. Le conteneur consumption
+est privé. Les chemins observés distinguent source/ et raw/YYYY/MM/DD/. [E07–E09, E17, E30]
+
+
+
+
+Figure 2 — Fichiers présents dans raw/2026/11/25/ · E30. Recadrage de la capture originale.
+
+Le fichier source est affiché à 3,88 MiB ; les sorties .txt et .csv sont à 4,57 MiB. Une copie DelimitedText peut
+réécrire l’encodage textuel et les guillemets : le dossier « raw » est ici une zone d’atterrissage logique.
+L’identité binaire avec le fichier original n’est pas établie ; il faudrait comparer les empreintes des fichiers.
+[E17, E20, E24, E28, E30]
+
+ADLS Gen2 et accès aux données depuis Azure ML
+Dans le workspace initial, ds_adls_forecast est enregistré comme datastore Azure Data Lake Storage
+Gen2. L’asset pjme_consumption:1, de type uri_file, pointe vers raw/2026/11/25/pjme hourly.csv via une
+URI dfs.core.windows.net. L’enregistrement d’un datastore ou d’un asset ne garantit pas, à lui seul, une
+lecture réussie par un job. [E33–E38]
+
+
+   Limite documentaire : la connexion finale
+   Les notes de projet signalent un repli réussi vers Blob Storage après des erreurs ADLS. Aucune
+   capture ne montre ce repli ni son datastore. Le rapport confirme donc le datastore ADLS enregistré et
+   les sorties ML visibles, sans certifier le connecteur final des assets Classic.
+
+
+Pour la traçabilité, associer chaque dépôt à son chemin complet, sa date, son empreinte, son schéma et son run ADF. Les assets
+Classic pjme_consumption2 et pjme_consumption_3 sont visibles, mais leur filiation exacte avec pjme_consumption:1 n’est pas
+exportée.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                          05 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                          Houssam MIRROU · 27.11.2026
+
+
+
+
+INFRASTRUCTURE AZURE MACHINE LEARNING
+
+
+Un cluster CPU adapté
+à l’exercice et au coût à l’usage
+Le workspace ml-forecastbrief1 présente un état de provisionnement Succeeded en North Europe. Ses
+ressources associées comprennent un stockage de workspace, un Key Vault et Application Insights. Leur
+présence n’atteste pas une gestion des secrets ou une supervision applicative effectivement configurée.
+[E31, E32]
+
+
+
+
+Figure 3 — Configuration de cpu-forecast et de son autoscaling · E36. Recadrage de la capture originale.
+
+
+  Élément                            Configuration observée
+
+  Cluster                            cpu-forecast ; CPU ; Dedicated ; Linux
+
+  Taille de VM                       Standard_DS11_v2 ; 2 vCPU ; 14 GiB selon Microsoft
+
+  Autoscaling                        Minimum 0 ; maximum 1 ; réduction après 120 s d’inactivité
+
+  État ultérieur                     Allocation Succeeded (1 node), nœud en préparation à l’instant E47
+
+
+Les réglages 0–1 limitent la capacité et permettent une extinction du calcul inutilisé ; ils ne prouvent pas
+qu’un cycle complet de montée et de descente a été observé. Le calcul a été sélectionné dans la soumission
+du job EDA. [E36, E44, E47]
+
+
+   Rectification de la spécification matérielle
+   Le brief associe « StandardDS2v3 » à 2 vCPU et 14 GB. Si l’intention est Standard_D2s_v3, la fiche
+   officielle indique 2 vCPU et 8 GiB. La taille réellement visible est Standard_DS11_v2, à 2 vCPU et 14
+   GiB. Les deux références ne sont pas interchangeables.
+
+
+Source externe : DSv3 · documentation consultée le 27/11/2026.
+
+Source externe : DSv2 · documentation consultée le 27/11/2026.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                   06 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                                 Houssam MIRROU · 27.11.2026
+
+
+
+
+07 / ANALYSE EXPLORATOIRE DES DONNÉES
+
+
+145 366 observations,
+des horodatages répétés à examiner
+La sortie Summarize Data fournit une ligne par variable et 23 statistiques. Le « Rows = 2 » de cette vue
+désigne les deux variables résumées ; il ne correspond pas à l’effectif du jeu initial. Les deux valeurs Count
+= 145366 permettent d’établir le volume observé. [E48]
+
+
+
+
+Figure 4 — Statistiques descriptives réellement produites · E48. Recadrage de la capture originale.
+
+
+  Indicateur                                              Valeur visible
+
+  Effectif / colonnes originales                          145 366 / Datetime et PJME_MW
+
+  Manquants déclarés                                      0 pour Datetime ; 0 pour PJME_MW
+
+  Timestamps distincts                                    145 362
+
+  PJME_MW : min / max                                     14 544,0 / 62 009,0 MW
+
+  PJME_MW : moyenne / médiane                             32 080,222830648156 / 31 421,0 MW
+
+  Bornes Datetime affichées                               Du 2002-01-01 01:00:00+00:00
+                                                          au 2018-08-03 00:00:00+00:00
+
+
+L’écart entre effectif et timestamps distincts indique quatre occurrences au-delà de l’unicité. Cela ne
+prouve pas quatre lignes identiques : des heures répétées peuvent porter des mesures différentes. Leur
+cause, le fuseau d’origine et une éventuelle ambiguïté d’heure locale ne sont pas établis.
+
+L’absence de manquants déclarés n’exclut ni des heures absentes de la série ni des valeurs atypiques. Un contrôle de continuité
+horaire et une analyse des pics restent à produire. Les bornes +00:00 sont celles affichées par l’outil ; elles ne certifient pas le fuseau
+de collecte.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                               07 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                           Houssam MIRROU · 27.11.2026
+
+
+
+
+08 / PRÉTRAITEMENT ET FEATURE ENGINEERING
+
+
+Nettoyer les types,
+extraire les régularités calendaires
+Le graphe exécuté enchaîne Clean Missing Data, Remove Duplicate Rows, deux Edit Metadata et
+Execute Python Script. Les coches vertes, accompagnées pour certaines étapes d’icônes de réutilisation,
+attestent des sorties disponibles pour ces composants ; les paramètres détaillés de nettoyage et de
+conversion ne sont pas affichés. [E51]
+
+
+
+
+Figure 5 — Prétraitements terminés ou réutilisés dans le job Classic · E51. Recadrage de la capture originale.
+
+Le nettoyage sert à sécuriser les entrées ; puisque l’EDA ne rapporte aucun manquant sur les deux
+colonnes, aucun volume de lignes supprimées ne peut lui être attribué. De même, la présence de Remove
+Duplicate Rows ne renseigne pas les colonnes retenues ni le nombre supprimé. Les étapes Edit Metadata
+préparent les types requis ; leur configuration exacte n’est pas fournie.
+
+L’aperçu des prédictions confirme les six variables Hour, DayOfWeek, Month, Quarter, Year, DayOfYear.
+Elles décrivent l’heure, le jour de semaine, le mois, le trimestre, l’année et le rang du jour dans l’année. Ces
+attributs sont connus pour une date future et peuvent représenter des cycles d’activité sans utiliser la cible
+future. [E54]
+
+Le script local prepare.py propose une implémentation proche mais distincte : il dédoublonne par timestamp et emploie les noms
+Dayofweek et Dayofyear. Il ne permet pas de reconstituer à l’identique le code Python embarqué du pipeline Classic.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                     08 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                                 Houssam MIRROU · 27.11.2026
+
+
+
+
+09 / PRÉPARATION ET SÉPARATION TEMPORELLE
+
+
+Tester sur le futur :
+une exigence centrale de validation
+Pour une prévision, une coupe aléatoire peut mélanger des observations proches et faire apprendre au
+modèle des régimes provenant de la période à évaluer. Le protocole attendu trie les données par Datetime,
+réserve les 80 % les plus anciens à l’apprentissage et les 20 % les plus récents au test. Le réglage « 80/20 »
+seul ne garantit pas cette propriété.
+
+  Niveau de preuve                   Constat
+
+  Câblage visible                    Split Data fournit deux sorties vers des sélections de colonnes, puis Train Model et Score
+                                     Model. [E50, E52]
+
+  Effectif observé                   Le jeu scoré contient 29 074 lignes. Il est compatible avec environ 20 % de 145 366, sans
+                                     prouver à lui seul la chronologie. [E48, E54]
+
+  Notes de réalisation               Un indicateur train_flag est décrit pour piloter Split Data ; ni sa construction ni l’expression
+                                     du composant ne sont visibles.
+
+  Code local vérifiable              prepare.py trie par Datetime puis coupe avec iloc à int(len(df) * 0.8), après suppression des
+                                     timestamps répétés.
+
+  Preuve manquante                   Bornes complètes train/test et assertion max(train.Datetime) < min(test.Datetime) pour le
+                                     run Classic.
+
+
+
+
+Figure 6 — Effectif du test, variables calendaires et premières prédictions · E54. Recadrage de la capture originale.
+
+Une implémentation par train_flag peut affecter chaque ligne à une période, puis utiliser une expression de
+Split Data pour router les lignes. Microsoft documente ce mode de séparation conditionnelle. Son
+application exacte au run fourni reste à prouver. La variable de routage et l’horodatage doivent être exclus
+des entrées du modèle après la coupe.
+
+Source externe : Split Data · documentation consultée le 27/11/2026.
+
+Avant une validation finale, exporter l’audit de la coupe et vérifier que les transformations apprises sur les données, si elles existent,
+sont ajustées uniquement sur l’entraînement. Le code local fournit une stratégie, mais aucun audit.json exécuté n’est disponible.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                              09 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                             Houssam MIRROU · 27.11.2026
+
+
+
+
+10 / ENTRAÎNEMENT DU MODÈLE
+
+
+Decision Forest Regression
+dans Azure ML Classic Designer
+Le modèle effectivement visible est Decision Forest Regression. Il est connecté à Train Model, qui reçoit le
+jeu d’apprentissage après sélection des colonnes. Le modèle entraîné et le jeu de test convergent ensuite
+vers Score Model ; sa sortie alimente Evaluate Model. [E50–E54]
+
+
+
+
+Figure 7 — Connexion de la forêt de régression à Train Model · E50. Recadrage de la capture originale.
+
+Une forêt de régression combine plusieurs arbres pour approximer des relations non linéaires et leurs
+interactions. Ce choix convient à une première modélisation de la saisonnalité calendaire. Il ne représente
+pas explicitement la dynamique séquentielle : aucune valeur retardée de consommation ni statistique
+glissante n’est visible dans les variables de test.
+
+  Rôle                                 Éléments établis
+
+  Cible                                PJME_MW ; nature régression confirmée par les sorties scorées et les métriques.
+
+  Variables explicatives               Hour, DayOfWeek, Month, Quarter, Year, DayOfYear visibles dans le jeu scoré. [E54]
+
+  Sélection                            Deux Select Columns in Dataset visibles après Split Data ; détail des sélecteurs non affiché.
+
+  Hyperparamètres Classic              Nombre d’arbres, profondeur, graine et stratégie de recherche non visibles : valeurs non
+                                       attribuées.
+
+
+
+   Variante Python : un artefact de conception distinct
+   Les fichiers locaux configurent RandomForestRegressor : 60 arbres, profondeur 16, feuille minimale 5,
+   n_jobs=2, random_state=42. Les composants sont enregistrés et placés sur un autre canvas (E42),
+   mais aucune exécution réussie n’est fournie. Ces paramètres ne décrivent pas la forêt Classic évaluée.
+
+
+La disponibilité de résultats d’évaluation atteste que des prédictions ont été produites ; les captures intermédiaires E51–E52 montrent
+encore le job Running. Elles ne sont donc pas utilisées pour annoncer un statut Completed de l’ensemble du job d’entraînement.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                          10 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                             Houssam MIRROU · 27.11.2026
+
+
+
+
+11 / ÉVALUATION DES PERFORMANCES
+
+
+Une performance modérée,
+des erreurs à analyser par période
+
+
+
+
+Figure 8 — Métriques du run Classic du 25 novembre · E53. Recadrage de la capture originale.
+
+
+  Mesure                            Valeur exacte visible          Lecture
+
+  MAE                               3 177,774545 MW                Amplitude moyenne de l’erreur absolue.
+
+  RMSE                              4 251,194918 MW                Pénalise davantage les erreurs fortes.
+
+  R²                                0,570777                       Environ 57,08 % de la variance expliquée sur ce test.
+
+  Erreur relative                   0,429223                       Complément de R² dans cette sortie.
+  quadratique
+
+  Erreur relative absolue           0,630538                       Valeur de l’évaluateur ; définition de référence à conserver.
+
+  Observations test                 29 074                         Nombre de lignes du Scored_dataset. [E54]
+
+
+Le RMSE supérieur au MAE suggère des erreurs de grande amplitude pour certaines observations ; la
+distribution des résidus n’est pas disponible pour les caractériser. R² = 0,570777 indique une performance
+explicative modérée, sans démontrer une précision suffisante pour une décision opérationnelle. Ce score
+n’est ni un pourcentage de prédictions exactes ni une mesure d’incertitude.
+
+Les valeurs du brief sont cohérentes avec cette capture après arrondi : RMSE 4 251,19 et R² 0,5708 ; le MAE
+arrondi à deux décimales serait 3 177,77. La table conserve ici les six décimales effectivement affichées. Les
+métriques viennent du run f9afd8ab-33a6-48ac-bbb0-432bac286e56, également visible dans la table de
+prédictions. [E53, E54]
+
+Limites et améliorations proposées
+Comparer à une prévision naïve J−1 et J−7 ; ajouter des retards et moyennes glissantes calculés uniquement
+à partir du passé disponible à l’horizon visé ; intégrer météo et jours fériés ; optimiser les hyperparamètres
+avec une validation temporelle glissante. Analyser les résidus par heure, saison et niveau de charge, puis
+évaluer plusieurs horizons de prévision.
+
+Aucun résultat de baseline, intervalle de confiance, graphique de résidus ou métrique du job d’inférence ultérieur n’a été fourni. Ces
+éléments restent des travaux proposés.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                          11 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                         Houssam MIRROU · 27.11.2026
+
+
+
+
+12 / ENREGISTREMENT ET PIPELINE D’INFÉRENCE
+
+
+Modèle enregistré ;
+inférence exécutée comme job
+
+
+
+Figure 9 — forecastingmodelv1 enregistré en version 1 · E55. Recadrage de la capture originale.
+
+La liste Models confirme forecastingmodelv1:1, type CUSTOM, dans l’expérience
+train_model_experiment, créé le 25/11/2026 à 17:15. Le run source affiché est un identifiant enfant
+tronqué ; la liaison exacte entre cet artefact enregistré et toutes les métriques doit être conservée dans un
+export de métadonnées. [E55]
+
+
+
+
+Figure 10 — Job d’inférence Completed et Score Model réussi · E64. Recadrage de la capture originale.
+
+Les brouillons du 25/11 réutilisent une transformation et un modèle entraîné, puis Score Model et Web
+Service Output. Le 26/11, le run 67d0f4cf-1186-47d3-a67a-c1cd61a30b8c est Completed dans
+ml-forecastbrief-1-2 / experiment_2 ; les étapes Score Model et Evaluate Model sont vertes. Les captures
+de 11:38 et 13:36 correspondent au même run. [E56–E64]
+
+
+   Frontière entre job et service temps réel
+   Création du graphe : vérifiée. Exécution du job d’inférence : vérifiée dans le second workspace. Qualité
+   chiffrée de cette exécution : non fournie. Endpoint déployé, URL, authentification et appel API avec
+   réponse : non démontrés. Aucun Web Service Input n’est visible sur les vues fournies.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                  12 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                            Houssam MIRROU · 27.11.2026
+
+
+
+
+13 / GOUVERNANCE, SÉCURITÉ ET RGPD
+
+
+Des contrôles observés,
+une conformité à documenter
+La sécurité se juge à partir des paramètres effectivement visibles et de leur périmètre. Les captures
+démontrent plusieurs contrôles de stockage, mais elles ne constituent pas un audit complet des accès, du
+chiffrement, du réseau ou de la conformité juridique.
+
+  Domaine                  Démontré                                        À compléter / recommandé
+
+  Accès                    Rôle utilisateur sur HMirrou ; conteneur        Revoir les droits effectifs et appliquer le moindre
+                           Private ; accès anonyme aux blobs               privilège ; documenter les identités de service.
+                           désactivé. [E02, E07, E08]
+
+  Authentification         ADF configuré avec Account key ; accès par      Privilégier une identité managée lorsque possible ;
+                           clés autorisé sur le compte. [E07, E16]         protéger et renouveler les secrets.
+
+  Transport /              Secure transfer activé ; TLS min 1.2 ; accès    Étudier filtrage réseau et accès privés selon le besoin.
+  réseau                   réseau public tous réseaux ; aucun private      Privé au niveau du conteneur ne signifie pas réseau
+                           endpoint. [E07]                                 privé.
+
+  Protection des           Soft delete blobs/conteneurs 7 jours ;          Définir conservation et restauration ; vérifier un test
+  données                  versioning désactivé. [E07]                     de reprise. Aucun test fourni.
+
+  Qualité / filiation      Statistiques E48 ; étapes de nettoyage ;        Exporter volumes, schémas, bornes temporelles,
+                           runs et version modèle visibles.                paramètres et relations entre assets.
+
+  Reproductibilité         Scripts/YAML disponibles ; modèle               Figer dépendances et image environnement ;
+                           versionné dans l’interface.                     exporter le pipeline Classic et ses scripts embarqués.
+
+
+
+RGPD : portée et mesures proposées
+Les colonnes visibles décrivent une mesure énergétique agrégée et un horodatage ; aucune identité
+individuelle n’y apparaît. Cela ne suffit pas à certifier l’anonymat de toutes les données ou de leurs usages.
+Si des données personnelles sont introduites, documenter finalité, minimisation, conservation, information
+des personnes et mesures de sécurité conformément aux principes rappelés par la CNIL.
+
+Source externe : CNIL · documentation consultée le 27/11/2026.
+
+L’hébergement en North Europe ne suffit pas à établir une conformité RGPD complète. Aucun registre de traitement, analyse des
+destinataires, politique de conservation ou examen des transferts n’est fourni. Les captures contiennent par ailleurs un nom et des
+identifiants de compte : leur diffusion doit être limitée au contexte d’évaluation.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                          13 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                             Houssam MIRROU · 27.11.2026
+
+
+
+
+14 / DIFFICULTÉS RENCONTRÉES ET SOLUTIONS
+
+
+Documenter les écarts,
+prioriser la validation restante
+  Incident / constat documenté                 Résolution ou limite de preuve
+
+  Destination initiale en .txt                 Le sink affiche .txt ; une première sortie texte est visible. Un second run réussi
+                                               produit aussi le .csv dans raw/2026/11/25. Le changement exact de réglage n’est
+                                               pas capturé. [E24, E28–E30]
+
+  Aperçu destination en échec                  Un message Failed partiel reste visible alors que la publication est réussie. La
+                                               cause ne peut pas être lue. Le succès de copie ultérieur prouve la réussite de cette
+                                               étape. [E21, E22, E29]
+
+  Asset absent du Designer puis                No data assets found précède l’apparition et le placement de pjme_consumption.
+  visible                                      Aucun diagnostic causal n’est fourni. [E39–E41]
+
+  Changement de workspace                      ml-forecastbrief1 est remplacé dans les captures d’inférence par
+                                               ml-forecastbrief-1-2. Le motif de ce changement et la reprise des configurations ne
+                                               sont pas démontrés. [E32, E61]
+
+
+Les erreurs d’authentification ADLS, le repli Blob, le conflit soft-deleted workspace et les erreurs
+d’expression Split Data sont mentionnés dans les notes, mais sans capture ni journal correspondant. Ils ne
+sont donc pas présentés comme des incidents vérifiés ni comme des causes prouvées des changements de
+ressources.
+
+15 / Conclusion et perspectives
+Le projet établit une base fonctionnelle de Data Engineering et de Machine Learning sur Azure : ingestion
+réussie, organisation du stockage, exploration des données, chaîne Classic de régression, évaluation
+disponible, enregistrement de modèle et exécution d’un job d’inférence. Le résultat évalué reste modéré,
+avec une erreur absolue moyenne de 3 177,774545 MW.
+
+La robustesse de la prévision et l’exploitabilité du système exigent encore un audit de la coupe temporelle
+du run Classic, une filiation complète entre les assets et les workspaces, ainsi qu’une validation du contrat
+d’inférence. Le modèle peut être amélioré par des variables historiques et externes, puis comparé à des
+références temporelles simples.
+
+
+   Priorités de finalisation
+   1. Exporter le pipeline, le code embarqué et l’audit train/test.
+   2. Identifier le datastore réellement utilisé par chaque asset.
+   3. Valider les baselines et l’inférence sur des entrées futures sans cible.
+   4. Déployer et tester un endpoint, puis automatiser et superviser le flux.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                        14 / 15
+AZURE / DATA ENGINEERING & MACHINE LEARNING                                                              Houssam MIRROU · 27.11.2026
+
+
+
+
+16 / ANNEXES
+
+
+Sources techniques
+et dossier de reproductibilité
+A · Extrait du Feature Engineering local
+Extrait exact de Script/01_prepare/src/prepare.py. Il documente la variante Python disponible ; le code embarqué du Designer Classic
+n’est pas fourni et ses noms de colonnes diffèrent par la casse.
+
+
+   Extrait du fichier local — variante command component
+   dt = df["Datetime"].dt
+   df["Hour"] = dt.hour
+   df["Dayofweek"] = dt.dayofweek
+   df["Month"] = dt.month
+   df["Quarter"] = dt.quarter
+   df["Year"] = dt.year
+   df["Dayofyear"] = dt.dayofyear
+
+
+
+B · Composants et artefacts locaux
+
+  Fichier / artefact                                            Portée
+
+  Script/01_prepare/prepare.yml                                 Entrée uri_file ; sorties train/test/audit ; contrôle des colonnes,
+  Script/01_prepare/src/prepare.py                              parsing, tri et dédoublonnage des timestamps.
+
+  Script/02_train/train.yml                                     RandomForestRegressor ; sortie prévue model.joblib et
+  Script/02_train/src/train.py                                  training_info.json ; exécution non démontrée.
+
+  Script/03_evaluate/evaluate.yml                               Exports prévus metrics.json et predictions.csv ; comparaison à la
+  Script/03_evaluate/src/evaluate.py                            moyenne d’entraînement ; résultats absents.
+
+  pjme_azure_components.zip                                     Six fichiers identiques à Script/ ; README explicite de
+                                                                non-exécution. Les YAML référencent sklearn-1.5/labels/latest :
+                                                                version d’environnement à figer.
+
+
+
+C · Références et correspondance des preuves
+Les identifiants E01–E64 renvoient aux noms complets dans report/evidence_inventory.md. Les empreintes des originaux figurent
+dans evidence_manifest.json ; les recadrages et pages des figures dans figure_manifest.json. Le générateur generate_report.py
+produit ce PDF sans contacter Azure. Aucun CSV source ni résultat exporté n’est présent dans le dossier initial.
+
+Microsoft Learn — caractéristiques Dsv3 · consulté le 27/11/2026.
+
+Microsoft Learn — caractéristiques DSv2 à mémoire optimisée · consulté le 27/11/2026.
+
+Microsoft Learn — composant Split Data · consulté le 27/11/2026.
+
+CNIL — six grands principes du RGPD · consulté le 27/11/2026.
+
+Le texte du cahier des charges est celui joint à la demande ; aucun autre énoncé indépendant n’a été trouvé. Les nombres de ce
+rapport sont transcrits des captures, sans nouvel entraînement ni recalcul des métriques.
+
+
+
+
+PJME · Rapport technique fondé sur les pièces du projet                                                                           15 / 15
+

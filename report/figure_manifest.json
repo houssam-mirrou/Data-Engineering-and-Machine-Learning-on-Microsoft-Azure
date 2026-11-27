@@ -1,0 +1,132 @@
+[
+  {
+    "number": 1,
+    "evidence": "E29",
+    "file": "Screenshots/Screenshot 2026-11-25 100000.png",
+    "page": 4,
+    "crop": [
+      830,
+      965,
+      2080,
+      1370
+    ],
+    "caption": "Exécution réussie de pl_ingest_consumption"
+  },
+  {
+    "number": 2,
+    "evidence": "E30",
+    "file": "Screenshots/Screenshot 2026-11-25 100017.png",
+    "page": 5,
+    "crop": [
+      420,
+      397,
+      2240,
+      805
+    ],
+    "caption": "Fichiers présents dans raw/2026/11/25/"
+  },
+  {
+    "number": 3,
+    "evidence": "E36",
+    "file": "Screenshots/Screenshot 2026-11-25 102939.png",
+    "page": 6,
+    "crop": [
+      650,
+      475,
+      2525,
+      1090
+    ],
+    "caption": "Configuration de cpu-forecast et de son autoscaling"
+  },
+  {
+    "number": 4,
+    "evidence": "E48",
+    "file": "Screenshots/Screenshot 2026-11-25 152332.png",
+    "page": 7,
+    "crop": [
+      390,
+      350,
+      1745,
+      910
+    ],
+    "caption": "Statistiques descriptives réellement produites"
+  },
+  {
+    "number": 5,
+    "evidence": "E51",
+    "file": "Screenshots/Screenshot 2026-11-25 170518.png",
+    "page": 8,
+    "crop": [
+      1520,
+      565,
+      2430,
+      1365
+    ],
+    "caption": "Prétraitements terminés ou réutilisés dans le job Classic"
+  },
+  {
+    "number": 6,
+    "evidence": "E54",
+    "file": "Screenshots/Screenshot 2026-11-25 171108.png",
+    "page": 9,
+    "crop": [
+      380,
+      270,
+      1355,
+      610
+    ],
+    "caption": "Effectif du test, variables calendaires et premières prédictions"
+  },
+  {
+    "number": 7,
+    "evidence": "E50",
+    "file": "Screenshots/Screenshot 2026-11-25 163317.png",
+    "page": 10,
+    "crop": [
+      360,
+      780,
+      1840,
+      1250
+    ],
+    "caption": "Connexion de la forêt de régression à Train Model"
+  },
+  {
+    "number": 8,
+    "evidence": "E53",
+    "file": "Screenshots/Screenshot 2026-11-25 171054.png",
+    "page": 11,
+    "crop": [
+      380,
+      270,
+      1720,
+      590
+    ],
+    "caption": "Métriques du run Classic du 25 novembre"
+  },
+  {
+    "number": 9,
+    "evidence": "E55",
+    "file": "Screenshots/Screenshot 2026-11-25 171551.png",
+    "page": 12,
+    "crop": [
+      400,
+      470,
+      1910,
+      625
+    ],
+    "caption": "forecastingmodelv1 enregistré en version 1"
+  },
+  {
+    "number": 10,
+    "evidence": "E64",
+    "file": "Screenshots/Screenshot 2026-11-26 133616.png",
+    "page": 12,
+    "crop": [
+      360,
+      310,
+      1800,
+      1100
+    ],
+    "caption": "Job d’inférence Completed et Score Model réussi"
+  }
+]
